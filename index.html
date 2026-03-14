@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>예배 출석부 ✝</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --bg2: #f0ebe4;
+    --dark: #2c3e50;
+    --dark2: #34495e;
+    --green: #27ae60;
+    --green-light: #d5f5e3;
+    --green-mid: #abebc6;
+    --green-border: #82c99e;
+    --red: #c0392b;
+    --blue: #2980b9;
+    --gray: #7f8c8d;
+    --gray-light: #95a5a6;
+    --border: #e0d8cf;
+    --white: #ffffff;
+    --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    color: var(--dark);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #app {
+    max-width: 520px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #4a6741 100%);
+    padding: 32px 20px 20px;
+    color: white;
+  }
+  .header-top { text-align: center; margin-bottom: 20px; }
+  .cross { font-size: 28px; opacity: 0.7; margin-bottom: 4px; font-family: serif; }
+  .header h1 {
+    font-size: 26px; font-weight: 800; margin: 4px 0;
+    letter-spacing: -0.5px;
+  }
+  .header .subtitle { font-size: 13px; opacity: 0.7; font-weight: 300; }
+
+  /* Year row */
+  .year-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin-bottom: 16px;
+  }
+  .year-btn {
+    background: rgba(255,255,255,0.15); border: none; color: white;
+    width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
+    font-size: 16px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .year-btn:hover { background: rgba(255,255,255,0.25); }
+  .year-label { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+  .settings-btn {
+    background: rgba(255,255,255,0.15); border: none; color: white;
+    padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px;
+    margin-left: auto; transition: background 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .settings-btn:hover { background: rgba(255,255,255,0.25); }
+
+  /* Summary */
+  .yearly-summary {
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 8px;
+  }
+  .stat-box { flex: 1; text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 800; }
+  .stat-label { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+  .stat-divider { width: 1px; height: 32px; background: rgba(255,255,255,0.2); }
+
+  /* Settings panel */
+  .settings-panel {
+    background: var(--white); margin: 0 12px; padding: 16px;
+    border-radius: 0 0 12px 12px; box-shadow: var(--shadow);
+    animation: slideDown 0.2s ease;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .settings-panel h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .settings-panel .desc { font-size: 12px; color: var(--gray-light); margin-bottom: 12px; }
+  .svc-edit-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .svc-edit-row input {
+    border: 1px solid #ddd; border-radius: 6px; padding: 6px 8px;
+    font-size: 13px; outline: none; font-family: 'Noto Sans KR', sans-serif;
+    transition: border-color 0.2s;
+  }
+  .svc-edit-row input:focus { border-color: var(--dark); }
+  .svc-edit-icon { width: 40px; text-align: center; font-size: 16px; }
+  .svc-edit-name { flex: 1; }
+  .svc-edit-time { width: 70px; text-align: center; }
+  .reset-btn {
+    margin-top: 8px; background: #ecf0f1; border: none; border-radius: 6px;
+    padding: 8px 16px; font-size: 12px; cursor: pointer; color: var(--gray);
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  /* View toggle */
+  .view-toggle { display: flex; gap: 4px; padding: 12px 12px 0; }
+  .view-btn {
+    flex: 1; padding: 10px 0; background: var(--white); border: 1px solid var(--border);
+    border-radius: 8px; font-size: 13px; cursor: pointer; color: var(--gray);
+    font-weight: 500; font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.2s;
+  }
+  .view-btn.active {
+    background: var(--dark); border-color: var(--dark);
+    color: white; font-weight: 700;
+  }
+
+  /* Month tabs */
+  .month-tabs {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+    padding: 8px 12px;
+  }
+  .month-tab {
+    padding: 8px 0; background: var(--white); border: 1px solid var(--border);
+    border-radius: 6px; font-size: 12px; cursor: pointer; color: var(--gray-light);
+    text-align: center; position: relative; font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.2s;
+  }
+  .month-tab.active {
+    background: var(--dark); border-color: var(--dark);
+    color: white; font-weight: 700;
+  }
+  .month-tab.has-data {
+    background: #f9f5f0; border-color: #d4c5b0; color: var(--dark); font-weight: 600;
+  }
+  .month-dot {
+    position: absolute; top: 2px; right: 4px; font-size: 6px; color: var(--green);
+  }
+
+  /* Calendar */
+  .calendar-section { padding: 0 12px 12px; }
+  .month-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0 8px;
+  }
+  .month-header h2 { font-size: 18px; font-weight: 700; }
+  .month-stat {
+    font-size: 12px; color: var(--gray); background: var(--white);
+    padding: 4px 10px; border-radius: 12px;
+  }
+
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+  }
+  .cal-day-header {
+    text-align: center; font-size: 11px; font-weight: 600; padding: 6px 0;
+  }
+  .cal-day-header.sun { color: var(--red); }
+  .cal-day-header.sat { color: var(--blue); }
+
+  .cal-day {
+    aspect-ratio: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: var(--white); border: 1px solid #eee; border-radius: 8px;
+    cursor: pointer; position: relative; font-size: 13px;
+    transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .cal-day:hover { transform: scale(1.03); }
+  .cal-day.sunday { border-color: #f5d5d5; }
+  .cal-day.wednesday { border-color: #d5e8f5; }
+  .cal-day.attended {
+    background: linear-gradient(135deg, #d4efdf 0%, #a9dfbf 100%);
+    border-color: var(--green-border); font-weight: 700;
+  }
+  .cal-day.selected {
+    border: 2px solid var(--dark);
+    box-shadow: 0 2px 8px rgba(44,62,80,0.2);
+    transform: scale(1.05);
+  }
+  .cal-day.today { box-shadow: inset 0 0 0 2px #e74c3c; }
+  .cal-check {
+    font-size: 8px; color: var(--green); position: absolute; bottom: 2px;
+  }
+
+  /* Detail panel */
+  .detail-panel {
+    margin-top: 12px; background: var(--white); border-radius: 12px;
+    padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    animation: slideDown 0.2s ease;
+  }
+  .detail-panel h3 { margin-bottom: 12px; font-size: 15px; font-weight: 700; }
+  .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .service-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 14px 8px; border-radius: 10px; cursor: pointer;
+    transition: all 0.15s; position: relative;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .service-btn.off {
+    background: #fafafa; border: 2px dashed #ddd;
+  }
+  .service-btn.on {
+    background: linear-gradient(135deg, var(--green-light) 0%, var(--green-mid) 100%);
+    border: 2px solid #58d68d;
+  }
+  .service-btn:hover { transform: scale(1.02); }
+  .service-icon { font-size: 22px; }
+  .service-name { font-size: 13px; font-weight: 600; }
+  .service-time { font-size: 11px; color: var(--gray-light); }
+  .service-check {
+    position: absolute; top: 6px; right: 8px; font-size: 14px;
+    color: var(--green); font-weight: 800;
+  }
+
+  /* List view */
+  .list-section { padding: 12px; }
+  .list-section h2 { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+  .list-section h3 { font-size: 14px; font-weight: 700; margin: 16px 0 8px; color: var(--blue); }
+  .list-item {
+    display: flex; gap: 12px; align-items: center;
+    background: var(--white); border-radius: 10px; padding: 12px 14px;
+    margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .list-date { text-align: center; min-width: 44px; }
+  .list-day { display: block; font-size: 22px; font-weight: 800; color: var(--dark); }
+  .list-weekday { font-size: 10px; color: var(--red); font-weight: 600; }
+  .list-weekday.wed { color: var(--blue); }
+  .list-services { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+  .list-svc {
+    padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s;
+  }
+  .list-svc.off { background: #f8f8f8; border: 1px solid #eee; color: #bbb; }
+  .list-svc.on {
+    background: var(--green-light); border: 1px solid var(--green-border);
+    color: var(--green); font-weight: 700;
+  }
+
+  /* Yearly view */
+  .yearly-section { padding: 12px; }
+  .yearly-section h2 { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+  .yearly-section h3 { font-size: 15px; font-weight: 700; margin: 20px 0 10px; }
+  .yearly-grid { display: flex; flex-direction: column; gap: 6px; }
+  .yearly-card {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--white); border-radius: 10px; padding: 12px 14px;
+    cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: all 0.15s;
+  }
+  .yearly-card:hover { transform: translateX(4px); }
+  .yearly-month { font-size: 14px; font-weight: 700; min-width: 36px; }
+  .yearly-bar-bg {
+    flex: 1; height: 8px; background: #ecf0f1; border-radius: 4px; overflow: hidden;
+  }
+  .yearly-bar { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .yearly-pct { font-size: 12px; color: var(--gray); min-width: 80px; text-align: right; }
+
+  .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .breakdown-card {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--white); border-radius: 10px; padding: 12px 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .breakdown-icon { font-size: 20px; }
+  .breakdown-label { flex: 1; font-size: 13px; font-weight: 600; }
+  .breakdown-count { font-size: 16px; font-weight: 800; color: var(--dark); }
+
+  .footer {
+    text-align: center; padding: 20px 12px; font-size: 11px; color: #bbb;
+  }
+
+  /* PWA install banner */
+  .install-banner {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--dark); color: white; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 100; max-width: 520px; margin: 0 auto;
+  }
+  .install-banner button {
+    background: var(--green); border: none; color: white;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif; font-weight: 600;
+  }
+  .install-banner .close-banner {
+    background: transparent; color: rgba(255,255,255,0.6);
+    font-size: 18px; padding: 4px 8px;
+  }
+
+  .empty { color: transparent; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+const DAYS_KR = ["일","월","화","수","목","금","토"];
+const DEFAULT_SERVICES = [
+  { id: "early", label: "1부 예배", time: "07:00", icon: "🌅" },
+  { id: "main", label: "2부 예배", time: "09:30", icon: "⛪" },
+  { id: "third", label: "3부 예배", time: "11:30", icon: "🕊️" },
+  { id: "evening", label: "저녁 예배", time: "19:00", icon: "🌙" },
+  { id: "wed", label: "수요 예배", time: "19:30", icon: "📖" },
+  { id: "dawn", label: "새벽 기도", time: "05:30", icon: "✨" },
+];
+
+// State
+let state = {
+  year: 2026,
+  month: new Date().getMonth(),
+  records: {},
+  selectedDate: null,
+  view: "calendar",
+  showSettings: false,
+  services: null,
+};
+
+// Storage
+function loadData() {
+  try {
+    const r = localStorage.getItem(`church-att-${state.year}`);
+    state.records = r ? JSON.parse(r) : {};
+  } catch { state.records = {}; }
+  try {
+    const s = localStorage.getItem("church-services");
+    state.services = s ? JSON.parse(s) : null;
+  } catch { state.services = null; }
+}
+
+function saveRecords() {
+  try { localStorage.setItem(`church-att-${state.year}`, JSON.stringify(state.records)); } catch {}
+}
+
+function saveServices() {
+  try {
+    if (state.services) localStorage.setItem("church-services", JSON.stringify(state.services));
+    else localStorage.removeItem("church-services");
+  } catch {}
+}
+
+function getServices() { return state.services || DEFAULT_SERVICES; }
+
+// Date helpers
+function getSundaysInMonth(y, m) {
+  const arr = [], d = new Date(y, m, 1);
+  while (d.getDay() !== 0) d.setDate(d.getDate() + 1);
+  while (d.getMonth() === m) { arr.push(new Date(d)); d.setDate(d.getDate() + 7); }
+  return arr;
+}
+function getWednesdaysInMonth(y, m) {
+  const arr = [], d = new Date(y, m, 1);
+  while (d.getDay() !== 3) d.setDate(d.getDate() + 1);
+  while (d.getMonth() === m) { arr.push(new Date(d)); d.setDate(d.getDate() + 7); }
+  return arr;
+}
+function getAllDaysInMonth(y, m) {
+  const arr = [], d = new Date(y, m, 1);
+  while (d.getMonth() === m) { arr.push(new Date(d)); d.setDate(d.getDate() + 1); }
+  return arr;
+}
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayKey() { return dateKey(new Date()); }
+
+function toggleAttendance(dk, svcId) {
+  if (!state.records[dk]) state.records[dk] = [];
+  const idx = state.records[dk].indexOf(svcId);
+  if (idx >= 0) state.records[dk].splice(idx, 1);
+  else state.records[dk].push(svcId);
+  if (state.records[dk].length === 0) delete state.records[dk];
+  saveRecords();
+  render();
+}
+
+function yearlyStats() {
+  let total = 0, attended = 0;
+  for (let m = 0; m < 12; m++) {
+    const suns = getSundaysInMonth(state.year, m);
+    total += suns.length;
+    suns.forEach(s => {
+      if (state.records[dateKey(s)]?.length > 0) attended++;
+    });
+  }
+  return { total, attended };
+}
+
+function totalServices() {
+  return Object.values(state.records).flat().length;
+}
+
+// Render
+function render() {
+  const app = document.getElementById("app");
+  const svcs = getServices();
+  const sundays = getSundaysInMonth(state.year, state.month);
+  const wednesdays = getWednesdaysInMonth(state.year, state.month);
+  const allDays = getAllDaysInMonth(state.year, state.month);
+  const ys = yearlyStats();
+  const attendedSundays = sundays.filter(s => state.records[dateKey(s)]?.length > 0).length;
+  const firstDayOffset = new Date(state.year, state.month, 1).getDay();
+  const tk = todayKey();
+
+  let html = `
+    <div class="header">
+      <div class="header-top">
+        <div class="cross">✝</div>
+        <h1>예배 출석부</h1>
+        <p class="subtitle">주님의 전에 나아가는 발걸음을 기록합니다</p>
+      </div>
+      <div class="year-row">
+        <button class="year-btn" onclick="changeYear(-1)">◂</button>
+        <span class="year-label">${state.year}년</span>
+        <button class="year-btn" onclick="changeYear(1)">▸</button>
+        <button class="settings-btn" onclick="toggleSettings()">⚙️ 예배시간 설정</button>
+      </div>
+      <div class="yearly-summary">
+        <div class="stat-box"><div class="stat-num">${ys.attended}</div><div class="stat-label">출석</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat-box"><div class="stat-num">${ys.total}</div><div class="stat-label">주일</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat-box"><div class="stat-num">${ys.total > 0 ? Math.round(ys.attended/ys.total*100) : 0}%</div><div class="stat-label">출석률</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat-box"><div class="stat-num">${totalServices()}</div><div class="stat-label">총 예배</div></div>
+      </div>
+    </div>`;
+
+  // Settings panel
+  if (state.showSettings) {
+    html += `<div class="settings-panel">
+      <h3>⚙️ 예배 시간 설정</h3>
+      <p class="desc">교회 예배 시간에 맞게 수정하세요</p>`;
+    svcs.forEach((svc, i) => {
+      html += `<div class="svc-edit-row">
+        <input class="svc-edit-icon" value="${svc.icon}" oninput="editService(${i},'icon',this.value)">
+        <input class="svc-edit-name" value="${svc.label}" oninput="editService(${i},'label',this.value)">
+        <input class="svc-edit-time" value="${svc.time}" oninput="editService(${i},'time',this.value)">
+      </div>`;
+    });
+    html += `<button class="reset-btn" onclick="resetServices()">기본값으로 초기화</button></div>`;
+  }
+
+  // View toggle
+  html += `<div class="view-toggle">
+    <button class="view-btn ${state.view==='calendar'?'active':''}" onclick="setView('calendar')">📅 달력</button>
+    <button class="view-btn ${state.view==='list'?'active':''}" onclick="setView('list')">📋 목록</button>
+    <button class="view-btn ${state.view==='yearly'?'active':''}" onclick="setView('yearly')">📊 연간</button>
+  </div>`;
+
+  // Month tabs
+  if (state.view !== "yearly") {
+    html += `<div class="month-tabs">`;
+    MONTHS.forEach((m, i) => {
+      const suns = getSundaysInMonth(state.year, i);
+      const att = suns.filter(s => state.records[dateKey(s)]?.length > 0).length;
+      const cls = state.month === i ? 'active' : (att > 0 ? 'has-data' : '');
+      html += `<button class="month-tab ${cls}" onclick="setMonth(${i})">${m}${att > 0 ? '<span class="month-dot">●</span>' : ''}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  // Calendar view
+  if (state.view === "calendar") {
+    html += `<div class="calendar-section">
+      <div class="month-header">
+        <h2>${state.year}년 ${MONTHS[state.month]}</h2>
+        <span class="month-stat">주일 출석: ${attendedSundays}/${sundays.length}</span>
+      </div>
+      <div class="cal-grid">`;
+
+    DAYS_KR.forEach(d => {
+      const cls = d === "일" ? "sun" : d === "토" ? "sat" : "";
+      html += `<div class="cal-day-header ${cls}">${d}</div>`;
+    });
+
+    for (let i = 0; i < firstDayOffset; i++) html += `<div class="empty"></div>`;
+
+    allDays.forEach(day => {
+      const dk = dateKey(day);
+      const isSun = day.getDay() === 0;
+      const isWed = day.getDay() === 3;
+      const hasRec = state.records[dk]?.length > 0;
+      const isSel = state.selectedDate === dk;
+      const isToday = dk === tk;
+      let cls = "cal-day";
+      if (isSun) cls += " sunday";
+      if (isWed) cls += " wednesday";
+      if (hasRec) cls += " attended";
+      if (isSel) cls += " selected";
+      if (isToday) cls += " today";
+      html += `<button class="${cls}" onclick="selectDate('${dk}')">
+        <span>${day.getDate()}</span>
+        ${hasRec ? '<span class="cal-check">✓</span>' : ''}
+      </button>`;
+    });
+
+    html += `</div>`;
+
+    // Detail panel
+    if (state.selectedDate) {
+      html += `<div class="detail-panel">
+        <h3>${state.selectedDate.replace(/-/g, '.')} 예배 출석</h3>
+        <div class="service-grid">`;
+      svcs.forEach(svc => {
+        const on = state.records[state.selectedDate]?.includes(svc.id);
+        html += `<button class="service-btn ${on?'on':'off'}" onclick="toggleAttendance('${state.selectedDate}','${svc.id}')">
+          <span class="service-icon">${svc.icon}</span>
+          <span class="service-name">${svc.label}</span>
+          <span class="service-time">${svc.time}</span>
+          ${on ? '<span class="service-check">✓</span>' : ''}
+        </button>`;
+      });
+      html += `</div></div>`;
+    }
+
+    html += `</div>`;
+  }
+
+  // List view
+  if (state.view === "list") {
+    html += `<div class="list-section"><h2>${MONTHS[state.month]} 예배 기록</h2>`;
+    sundays.forEach(sun => {
+      const dk = dateKey(sun);
+      const att = state.records[dk] || [];
+      html += `<div class="list-item">
+        <div class="list-date"><span class="list-day">${sun.getDate()}</span><span class="list-weekday">주일</span></div>
+        <div class="list-services">`;
+      svcs.filter(s => !["wed","dawn"].includes(s.id)).forEach(svc => {
+        const on = att.includes(svc.id);
+        html += `<button class="list-svc ${on?'on':'off'}" onclick="toggleAttendance('${dk}','${svc.id}')">${svc.icon} ${svc.label}</button>`;
+      });
+      html += `</div></div>`;
+    });
+
+    if (wednesdays.length > 0) {
+      html += `<h3>수요 예배</h3>`;
+      wednesdays.forEach(wed => {
+        const dk = dateKey(wed);
+        const att = state.records[dk] || [];
+        html += `<div class="list-item">
+          <div class="list-date"><span class="list-day">${wed.getDate()}</span><span class="list-weekday wed">수요</span></div>
+          <div class="list-services">
+            <button class="list-svc ${att.includes('wed')?'on':'off'}" onclick="toggleAttendance('${dk}','wed')">📖 수요 예배</button>
+          </div></div>`;
+      });
+    }
+    html += `</div>`;
+  }
+
+  // Yearly view
+  if (state.view === "yearly") {
+    html += `<div class="yearly-section"><h2>${state.year}년 연간 출석 현황</h2><div class="yearly-grid">`;
+    MONTHS.forEach((m, i) => {
+      const suns = getSundaysInMonth(state.year, i);
+      const att = suns.filter(s => state.records[dateKey(s)]?.length > 0).length;
+      const pct = suns.length > 0 ? Math.round(att/suns.length*100) : 0;
+      const color = pct === 100 ? '#27ae60' : pct > 50 ? '#f39c12' : pct > 0 ? '#e74c3c' : '#ecf0f1';
+      html += `<div class="yearly-card" onclick="setMonth(${i}); setView('calendar');">
+        <div class="yearly-month">${m}</div>
+        <div class="yearly-bar-bg"><div class="yearly-bar" style="width:${pct}%; background:${color}"></div></div>
+        <div class="yearly-pct">${att}/${suns.length} (${pct}%)</div>
+      </div>`;
+    });
+    html += `</div>`;
+
+    html += `<h3>예배별 참석 횟수</h3><div class="breakdown-grid">`;
+    svcs.forEach(svc => {
+      const cnt = Object.values(state.records).flat().filter(s => s === svc.id).length;
+      html += `<div class="breakdown-card">
+        <span class="breakdown-icon">${svc.icon}</span>
+        <span class="breakdown-label">${svc.label}</span>
+        <span class="breakdown-count">${cnt}회</span>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  html += `<div class="footer"><p>✝ 예배 출석부 — 데이터는 자동 저장됩니다</p></div>`;
+
+  app.innerHTML = html;
+}
+
+// Event handlers
+function changeYear(delta) {
+  state.year += delta;
+  state.selectedDate = null;
+  loadData();
+  render();
+}
+
+function toggleSettings() {
+  state.showSettings = !state.showSettings;
+  render();
+}
+
+function setView(v) {
+  state.view = v;
+  state.selectedDate = null;
+  render();
+}
+
+function setMonth(m) {
+  state.month = m;
+  state.selectedDate = null;
+  render();
+}
+
+function selectDate(dk) {
+  state.selectedDate = state.selectedDate === dk ? null : dk;
+  render();
+}
+
+function editService(idx, field, value) {
+  if (!state.services) state.services = JSON.parse(JSON.stringify(DEFAULT_SERVICES));
+  state.services[idx][field] = value;
+  saveServices();
+  // Don't re-render to avoid losing focus
+}
+
+function resetServices() {
+  state.services = null;
+  saveServices();
+  render();
+}
+
+// Init
+loadData();
+render();
+</script>
+
+</body>
+</html>
